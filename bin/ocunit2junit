@@ -58,7 +58,7 @@ class ReportParser
         piped_row.encode!(temporary_encoding, 'UTF-8', :invalid => :replace, :replace => '')
         piped_row.encode!('UTF-8', temporary_encoding)
       end
-      puts piped_row
+      #puts piped_row
       
       description_results = piped_row.scan(/\s\'(.+)\'\s/)
       if description_results && description_results[0] && description_results[0]
@@ -99,6 +99,19 @@ class ReportParser
           error_message = $4
 	        test_case = get_test_case_name($3, description)
 	        handle_test_error(test_suite,test_case,error_message,error_location)
+
+        when /(.*): error: (\S+) : (.*)/
+          puts "NEW ERROR"
+          error_location = $1
+          test_suite = $2
+          error_message = $3
+          puts error_location
+          puts test_suite
+          puts error_message
+
+          test_case = "#{test_suite}_entire_suite"
+          handle_test_failed(test_case, 10.0)
+          handle_end_test_suite(test_suite,Time.now)
 	        
         when /Test Case '-\[\S+ (\S+)\]' failed \((\S+) seconds\)/
           test_case = get_test_case_name($1, @last_description)
